@@ -1,4 +1,5 @@
 class Shipment {
+  final int id;
   final String description;
   final int quantity;
   final int freight;
@@ -11,7 +12,8 @@ class Shipment {
   final int documentId;
 
   Shipment(
-      {required this.description,
+      {required this.id,
+      required this.description,
       required this.quantity,
       required this.freight,
       required this.weight,
