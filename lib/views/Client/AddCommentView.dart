@@ -24,6 +24,7 @@ class _AddCommentViewState extends State<AddCommentView> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _typeOfComplaintIdController = TextEditingController();
   final TextEditingController _shipmentIdController = TextEditingController();
+
   //Pop Up para confirmar el envío del Comment
   Future<void>_showFeedbacksentDialog() async {
     await showDialog(
@@ -81,6 +82,7 @@ class _AddCommentViewState extends State<AddCommentView> {
     print('Error en la solicitud POST: $error');
 
   }
+
   }
   //Future Para obtener los datos del Dropdown
   Future<List<TypeOfComplaint>> fetchData() async {
