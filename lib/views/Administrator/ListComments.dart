@@ -150,9 +150,39 @@ class _ListCommentsViewState extends State<ListCommentsView> {
                           ),
                         ),
                         onPressed: () {
-                          // Acción cuando se presiona el botón "responder"
-                          // Puedes agregar aquí la lógica para responder al comentario
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Responder comentario'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextField(
+                                    // Aquí puedes ingresar el campo de texto para la respuesta
+                                    decoration: InputDecoration(
+                                      hintText: 'Ingrese su respuesta',
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Lógica para enviar la respuesta
+                                      // Aquí puedes obtener el texto de respuesta desde el TextField
+                                      String respuesta = ''; // Obtener el texto de respuesta
+
+                                      // Aquí puedes agregar la lógica para enviar la respuesta
+                                      // por ejemplo, hacer una solicitud HTTP al backend
+
+                                      // Cerrar el diálogo
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Enviar'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
                         },
+
                         child: Text(
                           'Responder',
                           style: TextStyle(
