@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'administratorPage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -11,27 +13,74 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   bool _isPasswordVisible = false;
   TextEditingController _usernameController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
   bool _isFormValid = false;
+  final _secureStorage = FlutterSecureStorage();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedData();
+  }
+
+  void _loadSavedData() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? savedUsername = preferences.getString('username');
+    String? savedPassword = await _secureStorage.read(key: 'password');
+
+    setState(() {
+      _usernameController.text = savedUsername ?? '';
+      _passwordController.text = savedPassword ?? '';
+      _isFormValid = savedUsername != null && savedPassword != null;
+    });
+  }
 
   @override
   void dispose() {
     _usernameController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
   void _checkFormValidity() {
     setState(() {
-      _isFormValid = _usernameController.text.isNotEmpty;
+      _isFormValid = _usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty;
     });
   }
 
   void _navigateToAdminScreen() {
     if (_isFormValid) {
-      String username = _usernameController.text;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AdminPage(username: username),
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Save Data'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Do you want to save the entered data?'),
+              SizedBox(height: 16),
+              Text('Username: ${_usernameController.text}'),
+              Text('Password: ${_passwordController.text}'),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                _saveData();
+                Navigator.pop(context);
+                _navigateToNextScreen();
+              },
+              child: Text('Save'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _navigateToNextScreen();
+              },
+              child: Text('Cancel'),
+            ),
+          ],
         ),
       );
     } else {
@@ -39,7 +88,7 @@ class _LoginViewState extends State<LoginView> {
         context: context,
         builder: (context) => AlertDialog(
           title: Text('Incomplete Form'),
-          content: Text('Please enter your username.'),
+          content: Text('Please enter your username and password.'),
           actions: [
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
@@ -49,6 +98,26 @@ class _LoginViewState extends State<LoginView> {
         ),
       );
     }
+  }
+
+  void _saveData() async {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString('username', username);
+
+    await _secureStorage.write(key: 'password', value: password);
+  }
+
+  void _navigateToNextScreen() {
+    String username = _usernameController.text;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AdminPage(username: username),
+      ),
+    );
   }
 
   @override
@@ -113,7 +182,11 @@ class _LoginViewState extends State<LoginView> {
                               },
                             ),
                           ),
+                          controller: _passwordController,
                           obscureText: !_isPasswordVisible,
+                          onChanged: (value) {
+                            _checkFormValidity();
+                          },
                         ),
                         SizedBox(height: 20),
                         Row(
@@ -141,44 +214,3 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
-/*
-
-class MainScreen extends StatelessWidget {
-  final String username;
-
-  MainScreen({required this.username});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: null,
-        flexibleSpace: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('images/boxlogo.png'),
-            SizedBox(height: 8),
-            Text(
-              'Welcome, $username',
-              style: TextStyle(fontSize: 18),
-            ),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(height: 20),
-              Text(
-                'Welcome, $username',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}*/
