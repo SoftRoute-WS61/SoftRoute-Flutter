@@ -68,6 +68,8 @@ class _LoginViewState extends State<LoginView> {
             ElevatedButton(
               onPressed: () {
                 _saveData();
+                print(_usernameController.text);
+                print(_passwordController.text);
                 Navigator.pop(context);
                 _navigateToNextScreen();
               },
