@@ -3,6 +3,8 @@ import 'package:example_souf_route/models/FeedbackModel.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import '../../models/TypeOfComplaint.dart';
+
 class ListCommentsView extends StatefulWidget {
   const ListCommentsView({Key? key}) : super(key: key);
 
@@ -11,6 +13,9 @@ class ListCommentsView extends StatefulWidget {
 }
 
 class _ListCommentsViewState extends State<ListCommentsView> {
+  //DATOS QUE IRAN EN EL DROPDOWN
+  List<TypeOfComplaint> items = [];
+  TypeOfComplaint? selectedItem;
   String url = "http://20.150.216.134:7070/api/v1/feedback";
   List<FeedbackModel> comments = [];
 
@@ -37,37 +42,80 @@ class _ListCommentsViewState extends State<ListCommentsView> {
 
   @override
   void initState() {
-    this.fetchComments();
+    super.initState();
+    fetchComments();
+    fetchData().then((data) {
+      setState(() {
+        items = data;
+        selectedItem = data.isNotEmpty ? data[0] : null;
+      });
+    }).catchError((error) {
+      print('Error: $error');
+    });
+  }
+
+  //dropdown
+  Future<List<TypeOfComplaint>> fetchData() async {
+    final url = 'http://20.150.216.134:7070/api/v1/typeofcomplaint';
+
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = json.decode(response.body);
+      return jsonData.map((item) => TypeOfComplaint.fromJson(item)).toList();
+    } else {
+      throw Exception('Error al obtener los datos de la API');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    List<FeedbackModel> filteredComments = [];
+
+    if (selectedItem != null) {
+      filteredComments = comments
+          .where((comment) => comment.typeOfComplaintId == selectedItem!.id)
+          .toList();
+    } else {
+      filteredComments = comments;
+    }
+
     return Scaffold(
       body: ListView.builder(
-        itemCount: comments == null ? 0 : comments.length + 1,
+        itemCount: filteredComments.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
             // Mostrar el card del filtro en el primer índice
             return Card(
-              color: Colors.grey,
+              color: Colors.white,
               child: ListTile(
                 leading: Icon(Icons.filter_list),
-                title: Text(
-                  'Filtro',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                title: DropdownButtonFormField<TypeOfComplaint>(
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(width: 1, color: Color(0xffC8A1FF)),
+                    ),
                   ),
+                  value: selectedItem,
+                  items: items.map((item) {
+                    return DropdownMenuItem<TypeOfComplaint>(
+                      value: item,
+                      child: Text(item.name, style: TextStyle(fontSize: 15)),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedItem = value;
+                    });
+                  },
                 ),
-                onTap: () {
-                  // Acción cuando se hace clic en el card de filtro
-                  // Puedes agregar aquí la lógica para mostrar el menú desplegable de filtros
-                },
               ),
             );
           } else {
-            // Mostrar las tarjetas de comentarios
+            // Mostrar las tarjetas de comentarios filtrados
             final commentIndex = index - 1;
+            final comment = filteredComments[commentIndex];
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: Card(
@@ -91,8 +139,8 @@ class _ListCommentsViewState extends State<ListCommentsView> {
                       ),
                     ),
                     ListTile(
-                      title: Text(comments[commentIndex].description),
-                      subtitle: Text(comments[commentIndex].date),
+                      title: Text(comment.description),
+                      subtitle: Text(comment.date),
                       contentPadding: EdgeInsets.all(16.0),
                       trailing: ElevatedButton(
                         style: ElevatedButton.styleFrom(
@@ -102,9 +150,39 @@ class _ListCommentsViewState extends State<ListCommentsView> {
                           ),
                         ),
                         onPressed: () {
-                          // Acción cuando se presiona el botón "responder"
-                          // Puedes agregar aquí la lógica para responder al comentario
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Responder comentario'),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextField(
+                                    // Aquí puedes ingresar el campo de texto para la respuesta
+                                    decoration: InputDecoration(
+                                      hintText: 'Ingrese su respuesta',
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Lógica para enviar la respuesta
+                                      // Aquí puedes obtener el texto de respuesta desde el TextField
+                                      String respuesta = ''; // Obtener el texto de respuesta
+
+                                      // Aquí puedes agregar la lógica para enviar la respuesta
+                                      // por ejemplo, hacer una solicitud HTTP al backend
+
+                                      // Cerrar el diálogo
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('Enviar'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
                         },
+
                         child: Text(
                           'Responder',
                           style: TextStyle(
