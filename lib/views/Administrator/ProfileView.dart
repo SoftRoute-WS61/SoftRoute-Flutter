@@ -4,36 +4,57 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../models/Admin.dart';
+import '../../pages/Login.dart';
 class ProfileScreen extends StatefulWidget {
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  Future<void> getAdminInfo()async{
-    String URL='http://40.67.144.113:8080/api/v1/admin';
+  int adminId = AdminIdStorage.adminId;
+  List<Admin> adminInfos = [];
 
+  Future<void> fetchAdminInfo() async {
+    String URL = 'http://40.67.144.113:8080/api/v1/admin/$adminId';
+    print(adminId);
 
     final url = Uri.parse(URL);
     var response = await http.get(url);
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-      List<Admin> adminInfos = []; // Crear una lista de nombres de consignees
-      for (var item in jsonData) {
-        int id = item['id'];
-        String name = item['name'];
-        String lastName = item['lastName'];
-        String email = item['email'];
-        String password = item['password'];
-        int phoneNumber = item['phoneNumber'];
-        String code = item['code'];
-        Admin adminInfo=Admin(id: id, name: name, lastName: lastName, email: email,password: password,phoneNumber: phoneNumber,code: code);
+      if (jsonData is Map) {
+        int id = jsonData['id'];
+        String name = jsonData['name'];
+        String lastName = jsonData['lastName'];
+        String email = jsonData['email'];
+        String password = jsonData['password'];
+        int phoneNumber = jsonData['phoneNumber'];
+        String code = jsonData['code'];
+        Admin adminInfo = Admin(
+          id: id,
+          name: name,
+          lastName: lastName,
+          email: email,
+          password: password,
+          phoneNumber: phoneNumber,
+          code: code,
+        );
         adminInfos.add(adminInfo);
+        setState(() {}); // Actualizar el widget para reflejar los datos obtenidos
+      } else {
+        print('Invalid JSON format: Expected a map.');
       }
-    } else {
-      print('Request failed with status: ${response.statusCode}');
 
+    }else {
+      print('Request failed with status: ${response.statusCode}');
     }
+  }
+
+  @override
+  void initState() {
+    print('JULIAN TE AMO');
+    super.initState();
+    fetchAdminInfo();
   }
 
   @override
@@ -45,7 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             height: 200,
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Colors.purple,
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
@@ -54,7 +75,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Center(
               child: CircleAvatar(
                 radius: 60,
-                backgroundImage: NetworkImage("https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"),
+                backgroundImage: NetworkImage(
+                    "https://t4.ftcdn.net/jpg/02/15/84/43/360_F_215844325_ttX9YiIIyeaR7Ne6EaLLjMAmy4GvPC69.jpg"),
               ),
             ),
           ),
@@ -65,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Nombre: JUlian',
+                  'Name: ${adminInfos.isNotEmpty ? adminInfos[0].name : ''}',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -73,25 +95,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'Age: 30 years old',
+                  'Lastname: ${adminInfos.isNotEmpty
+                      ? adminInfos[0].lastName
+                      : ''}',
                   style: TextStyle(
                     fontSize: 16,
                   ),
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'Email address: julian.creep@gmail.com',
+                  'Email: ${adminInfos.isNotEmpty ? adminInfos[0].email : ''}',
                   style: TextStyle(
                     fontSize: 16,
                   ),
                 ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  child: Text('Edit'),
-                  onPressed: () {
-                    // Acción al presionar el botón de editar
-                  },
+                SizedBox(height: 10),
+                Text(
+                  'Phone Number: ${adminInfos.isNotEmpty ? adminInfos[0]
+                      .phoneNumber : ''}',
+                  style: TextStyle(
+                    fontSize: 16,
+                  ),
                 ),
+                // SizedBox(height: 20),
+                // ElevatedButton(
+                //   child: Text('Editar'),
+                //   onPressed: () {
+                //     // Acción al presionar el botón de editar
+                //   },
+                // ),
               ],
             ),
           ),

@@ -7,7 +7,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-
+class AdminIdStorage {
+  static int adminId=0;
+}
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -33,6 +35,7 @@ class _LoginViewState extends State<LoginView> {
 
       for (var user in users) {
         if (user['email'] == username && user['password'] == password) {
+          AdminIdStorage.adminId = user['id'];
             _navigateToNextScreen(username: user['name']);
           return true; // Los datos de inicio de sesión son correctos
         }
