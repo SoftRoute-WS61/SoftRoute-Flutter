@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import 'package:http/http.dart' as http;
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import '../views/Administrator/ProfileView.dart';
 import '../widgets/appBar.dart';
 import '../views/Administrator/AddShipmentView.dart';
 import '../views/Administrator/AdminHomeView.dart';
@@ -91,6 +92,8 @@ class _AdminPageState extends State<AdminPage> {
         break;
         case 3:
           widget= ListCommentsView();
+      case 4:
+        widget= ProfileScreen();
       default:
         widget= AddShipmentView();
         break;
