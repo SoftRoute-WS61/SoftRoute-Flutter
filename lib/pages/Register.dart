@@ -40,7 +40,7 @@ class _RegisterState extends State<Register> {
       final password = _passwordController.text;
       final code = _codeController.text;
 
-      final url = Uri.parse('http://localhost:8080/api/v1/admin');
+      final url = Uri.parse('http://40.67.144.113:8080/api/v1/admin');
 
       var response = await http.post(
         url,
