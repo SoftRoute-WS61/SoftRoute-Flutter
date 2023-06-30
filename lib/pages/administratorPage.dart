@@ -206,7 +206,20 @@ class NavigationDrawer extends StatelessWidget {
           leading: const Icon(Icons.logout),
           title: const Text('Logout'),
           onTap: () {
-            // Agrega aquí la lógica para realizar la operación de cierre de sesión
+            Navigator.pushAndRemoveUntil(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  );
+                },
+                transitionDuration: Duration(milliseconds: 500),
+              ),
+                  (route) => false,
+            );
           },
         ),
       ],

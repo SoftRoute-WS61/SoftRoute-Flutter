@@ -265,7 +265,6 @@ class _TrackingCardState extends State<TrackingCard> {
           ),
         ],
       );
-
     }else{
       return Row( // Agregado: Envuelve el Card con Row
         children: [
@@ -310,8 +309,5 @@ class _TrackingCardState extends State<TrackingCard> {
         ],
       );
     }
-
   }
-
-
 }
