@@ -43,8 +43,6 @@ class _LoginViewState extends State<LoginView> {
     });
   }
 
-
-
   @override
   void dispose() {
     _usernameController.dispose();
@@ -58,80 +56,7 @@ class _LoginViewState extends State<LoginView> {
     });
   }
 
-  void _navigateToAdminScreen() {
-    if (_isFormValid) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          icon: Icon(Icons.lock,
-              color: Colors.black,
-              size: 50),
-          title: Text('Save Data',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text('Do you want to save the entered data?'),
-              SizedBox(height: 16),
-              Text('Username: ${_usernameController.text}'),
-              Text('Password: ${_passwordController.text}'),
-            ],
-          ),
-          actions: [
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.deepPurple,
-                  ),
-                  onPressed: () {
-                    _saveData();
-                    Navigator.pop(context);
-                    _navigateToNextScreen();
-                    _clearForm();
-                  },
-                  child: Text('Yes'),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.deepPurple,
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateToNextScreen();
-                    _clearForm();
-                  },
-                  child: Text('No'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Incomplete Form'),
-          content: Text('Please enter your username and password.'),
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
   void _saveData() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
@@ -144,13 +69,37 @@ class _LoginViewState extends State<LoginView> {
 
   void _navigateToNextScreen() {
     String username = _usernameController.text;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AdminPage(username: username),
-      ),
-    );
+    String password = _passwordController.text;
+
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Please enter your username and password.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AdminPage(username: username),
+        ),
+      );
+      _clearForm();
+    }
   }
+
 
   void _navigateToRegisterScreen(){
     Navigator.push(
@@ -160,6 +109,95 @@ class _LoginViewState extends State<LoginView> {
       ),
     );
   }
+
+  void _showAccountBottomSheet(){
+    showModalBottomSheet(
+      context: context,
+      backgroundColor:Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius:BorderRadius.vertical(
+          top: Radius.circular(25),
+        )
+      ),
+      builder:(context){
+        return Container(
+         padding: EdgeInsets.all(25),
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.center,
+           mainAxisSize: MainAxisSize.min,
+           children: [
+               Row(
+                 mainAxisAlignment: MainAxisAlignment.end,
+                 children: [
+                   InkWell(
+                     onTap: () {
+                       Navigator.pop(context);
+                     },
+                     child: Container(
+                       padding: EdgeInsets.all(8),
+                       decoration: BoxDecoration(
+                         shape: BoxShape.circle,
+                         color: Colors.transparent,
+                       ),
+                       child: Icon(
+                         Icons.cancel,
+                         color: Colors.grey,
+                         size: 30,
+                       ),
+                     ),
+                   ),
+                 ],
+               ),
+             Icon(Icons.key_rounded,
+             color: Colors.black,
+             size: 60,
+             ),
+             SizedBox(height: 10),
+             Text('Do you want to log in to SoftRoute with your saved account?',
+             style: TextStyle(
+               fontSize: 18,
+               fontWeight: FontWeight.bold,
+             ),
+             ),
+             SizedBox(height: 20),
+             Text(
+               'Email/Username: ${_usernameController.text}',
+               style: TextStyle(
+                 fontSize: 16,
+               ),
+             ),
+             Text(
+               'Password: ${_passwordController.text}',
+               style: TextStyle(
+                 fontSize: 16,
+               ),
+             ),
+             SizedBox(height: 20),
+             SizedBox(height: 10),
+
+             ElevatedButton(onPressed: (){
+               _usernameController.text = _usernameController.text;
+               _passwordController.text = _passwordController.text;
+               Navigator.pop(context);
+             },
+               style: ElevatedButton.styleFrom(
+               backgroundColor: Colors.deepPurple,
+               ),
+                 child:Text('Confirm Use',
+                 style: TextStyle(
+                   fontSize: 16,
+                   fontWeight: FontWeight.bold,
+                 ),
+                 ),
+             )
+
+           ],
+          ),
+        );
+      },
+    );
+  }
+
 
 
   @override
@@ -205,6 +243,10 @@ class _LoginViewState extends State<LoginView> {
                             labelText: 'Username',
                           ),
                           controller: _usernameController,
+                          //
+                          onTap: () {
+                            _showAccountBottomSheet();
+                          },
                           onChanged: (value) {
                             _checkFormValidity();
                           },
@@ -226,6 +268,9 @@ class _LoginViewState extends State<LoginView> {
                           ),
                           controller: _passwordController,
                           obscureText: !_isPasswordVisible,
+                          onTap: () {
+                            _showAccountBottomSheet();
+                          },
                           onChanged: (value) {
                             _checkFormValidity();
                           },
@@ -246,11 +291,15 @@ class _LoginViewState extends State<LoginView> {
                                 ),
                               ),
                             ),
+                            //////////////////////////////////////////////
+                            //
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 primary: Colors.deepPurple,
                               ),
-                              onPressed: _navigateToAdminScreen,
+                              onPressed:
+                                _navigateToNextScreen,
+                                //_navigateToAdminScreen,
                               child: Text('Login',
                                 style: TextStyle(
                                   fontSize: 16,
