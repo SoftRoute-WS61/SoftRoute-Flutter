@@ -15,6 +15,16 @@ class FeedbackClient {
     required this.shipmentId,
   });
 
+
+  Map<String,dynamic> toMap(){
+    return {
+      'date': date,
+      'description': description,
+      'typeOfComplaintId': typeOfComplaintId,
+      'shipmentId': shipmentId,
+    };
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'date': date,

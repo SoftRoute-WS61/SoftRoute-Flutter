@@ -45,7 +45,7 @@ class _ClientPageState extends State<ClientPage> {
     return SafeArea(
       child: Scaffold(
           appBar: CustomAppBar(username: "Client"),
-        bottomNavigationBar: CurvedNavigationBar(
+          bottomNavigationBar: CurvedNavigationBar(
           height: 60,
           backgroundColor: Colors.transparent,
           color: Colors.deepPurple,

@@ -1,3 +1,4 @@
+import 'package:example_souf_route/pages/Register.dart';
 import 'package:flutter/material.dart';
 import 'administratorPage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -146,6 +147,11 @@ class _LoginViewState extends State<LoginView> {
       context,
       MaterialPageRoute(
         builder: (context) => AdminPage(username: username),
+  void _navigateToRegisterScreen(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Register(),
       ),
     );
   }
@@ -226,7 +232,7 @@ class _LoginViewState extends State<LoginView> {
                               style: ElevatedButton.styleFrom(
                                 primary: Colors.deepPurple,
                               ),
-                              onPressed: () {},
+                              onPressed: () => _navigateToRegisterScreen(),
                               child: Text('Sign Up',
                               style: TextStyle(
                                 fontSize: 16,

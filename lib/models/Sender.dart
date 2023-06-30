@@ -12,4 +12,12 @@ class Sender{
     required this.name,
     required this.email
 });
+
+  Map<String,dynamic> toMap(){
+    return{
+      'id':(id==0)? null: id,
+      'name':name,
+      'email':email
+    };
+  }
 }
