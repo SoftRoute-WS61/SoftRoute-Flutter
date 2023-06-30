@@ -26,4 +26,20 @@ class Shipment {
         required this.typeOfPackageId,
         required this.documentId
       });
+
+  Map<String,dynamic> toMap(){
+    return {
+      'id': (id==0)? null:id,
+      'description': description,
+      'quantity': quantity,
+      'freight': freight,
+      'weight': weight,
+      'date': date,
+      'destinyId': destinyId,
+      'consigneesId': consigneesId,
+      'senderId': senderId,
+      'typeOfPackageId': typeOfPackageId,
+      'documentId': documentId,
+    };
+  }
 }
