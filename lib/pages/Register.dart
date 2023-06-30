@@ -1,3 +1,4 @@
+import 'package:example_souf_route/pages/Login.dart';
 import 'package:example_souf_route/widgets/appBarRegister.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -353,7 +354,23 @@ class _RegisterState extends State<Register> {
                     ),
                     SizedBox(height: 16.0),
                     ElevatedButton(
-                      onPressed: _submitForm,
+                      onPressed: () {
+                        _submitForm();
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => LoginView(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                            transitionDuration: Duration(milliseconds: 500),
+                          ),
+                              (route) => false,
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         primary: Color(0xFF6200EE),
                       ),

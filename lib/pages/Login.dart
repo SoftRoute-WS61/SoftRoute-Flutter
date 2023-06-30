@@ -36,7 +36,8 @@ class _LoginViewState extends State<LoginView> {
       for (var user in users) {
         if (user['email'] == username && user['password'] == password) {
           AdminIdStorage.adminId = user['id'];
-            _navigateToNextScreen(username: user['name']);
+            _navigateToNextScreen(user['name']);
+            //email: user['name']
           return true; // Los datos de inicio de sesión son correctos
         }
       }
@@ -80,7 +81,7 @@ class _LoginViewState extends State<LoginView> {
     await _secureStorage.write(key: 'password', value: password);
   }
 
-  void _navigateToNextScreen() {
+  void _navigateToNextScreen(String name) {
     String email = _emailController.text;
     String password = _passwordController.text;
 
@@ -106,7 +107,7 @@ class _LoginViewState extends State<LoginView> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AdminPage(email: email),
+          builder: (context) => AdminPage(email: name),
         ),
       );
       _clearForm();
@@ -121,6 +122,45 @@ class _LoginViewState extends State<LoginView> {
         builder: (context) => Register(),
       ),
     );
+  }
+
+  void _navigateToAdminScreen()async{
+    if (_isFormValid) {
+      final username = _emailController.text;
+      final password = _passwordController.text;
+
+      final isValid = await _verifyLogin(username, password);
+
+      if(!isValid){
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Usuario o Contraseña Incorrectos'),
+            content: Text('Por favor, intentelo denuevo'),
+            actions: [
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    }else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Incomplete Form'),
+          content: Text('Please enter your username and password.'),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Future<void> _showAccountBottomSheet() async {
@@ -315,8 +355,8 @@ class _LoginViewState extends State<LoginView> {
                                 primary: Colors.deepPurple,
                               ),
                               onPressed:
-                                _navigateToNextScreen,
-                                //_navigateToAdminScreen,
+                                //_navigateToNextScreen,
+                                _navigateToAdminScreen,
                               child: Text('Login',
                                 style: TextStyle(
                                   fontSize: 16,
