@@ -34,6 +34,13 @@ class _LoginViewState extends State<LoginView> {
       _isFormValid = savedUsername != null && savedPassword != null;
     });
   }
+  void _clearForm() {
+    _usernameController.clear();
+    _passwordController.clear();
+    setState(() {
+      _isFormValid = false;
+    });
+  }
 
   @override
   void dispose() {
@@ -53,10 +60,19 @@ class _LoginViewState extends State<LoginView> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Save Data'),
+          icon: Icon(Icons.lock,
+          color: Colors.black,
+          size: 50),
+          title: Text('Save Data',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text('Do you want to save the entered data?'),
               SizedBox(height: 16),
@@ -65,20 +81,34 @@ class _LoginViewState extends State<LoginView> {
             ],
           ),
           actions: [
-            ElevatedButton(
-              onPressed: () {
-                _saveData();
-                Navigator.pop(context);
-                _navigateToNextScreen();
-              },
-              child: Text('Save'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _navigateToNextScreen();
-              },
-              child: Text('Cancel'),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.deepPurple,
+                  ),
+                  onPressed: () {
+                    _saveData();
+                    Navigator.pop(context);
+                    _navigateToNextScreen();
+                    _clearForm();
+                  },
+                  child: Text('Yes'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.deepPurple,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _navigateToNextScreen();
+                    _clearForm();
+                  },
+                  child: Text('No'),
+                ),
+              ],
             ),
           ],
         ),
@@ -193,12 +223,28 @@ class _LoginViewState extends State<LoginView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.deepPurple,
+                              ),
                               onPressed: () {},
-                              child: Text('Sign Up'),
+                              child: Text('Sign Up',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              ),
                             ),
                             ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.deepPurple,
+                              ),
                               onPressed: _navigateToAdminScreen,
-                              child: Text('Next'),
+                              child: Text('Login',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             ),
                           ],
                         ),
