@@ -1,4 +1,3 @@
-import 'package:example_souf_route/pages/Register.dart';
 import 'package:flutter/material.dart';
 import 'administratorPage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -43,6 +42,8 @@ class _LoginViewState extends State<LoginView> {
     });
   }
 
+
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -62,14 +63,14 @@ class _LoginViewState extends State<LoginView> {
         context: context,
         builder: (context) => AlertDialog(
           icon: Icon(Icons.lock,
-          color: Colors.black,
-          size: 50),
+              color: Colors.black,
+              size: 50),
           title: Text('Save Data',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -131,6 +132,8 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
+
+
   void _saveData() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
@@ -147,11 +150,6 @@ class _LoginViewState extends State<LoginView> {
       context,
       MaterialPageRoute(
         builder: (context) => AdminPage(username: username),
-  void _navigateToRegisterScreen(){
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Register(),
       ),
     );
   }
@@ -232,12 +230,12 @@ class _LoginViewState extends State<LoginView> {
                               style: ElevatedButton.styleFrom(
                                 primary: Colors.deepPurple,
                               ),
-                              onPressed: () => _navigateToRegisterScreen(),
+                              onPressed: () {},
                               child: Text('Sign Up',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                             ElevatedButton(
@@ -246,11 +244,11 @@ class _LoginViewState extends State<LoginView> {
                               ),
                               onPressed: _navigateToAdminScreen,
                               child: Text('Login',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
                             ),
                           ],
                         ),
