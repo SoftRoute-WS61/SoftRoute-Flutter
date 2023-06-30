@@ -174,7 +174,7 @@ class _TrackingCardState extends State<TrackingCard> {
               )
                   : GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>ClientPage()));
+                  print("Nothing");
                 },
                 child: Card(
                   color: Color(0xFFF0E5FF),
@@ -247,7 +247,7 @@ class _TrackingCardState extends State<TrackingCard> {
                               color:Color(0xFFBA8EFC),
                               child: IconButton(
                                 onPressed: (){
-                                  print("julian t amo");
+                                  print("Card");
                                 },
                                 icon: Icon(Icons.arrow_forward_ios_sharp),
                                 color: Colors.white,
