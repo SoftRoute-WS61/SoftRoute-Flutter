@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:example_souf_route/pages/Register.dart';
 import 'package:flutter/material.dart';
 import 'administratorPage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -17,6 +22,24 @@ class _LoginViewState extends State<LoginView> {
   TextEditingController _passwordController = TextEditingController();
   bool _isFormValid = false;
   final _secureStorage = FlutterSecureStorage();
+
+
+  Future<bool> _verifyLogin(String username, String password) async {
+    final url = Uri.parse('http://40.67.144.113:8080/api/v1/admin');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final users = json.decode(response.body);
+
+      for (var user in users) {
+        if (user['email'] == username && user['password'] == password) {
+            _navigateToNextScreen(username: user['name']);
+          return true; // Los datos de inicio de sesión son correctos
+        }
+      }
+    }
+    return false; // Los datos de inicio de sesión son incorrectos
+  }
 
   @override
   void initState() {
@@ -43,8 +66,6 @@ class _LoginViewState extends State<LoginView> {
     });
   }
 
-
-
   @override
   void dispose() {
     _usernameController.dispose();
@@ -58,65 +79,29 @@ class _LoginViewState extends State<LoginView> {
     });
   }
 
-  void _navigateToAdminScreen() {
+  void _navigateToAdminScreen() async {
     if (_isFormValid) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          icon: Icon(Icons.lock,
-              color: Colors.black,
-              size: 50),
-          title: Text('Save Data',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text('Do you want to save the entered data?'),
-              SizedBox(height: 16),
-              Text('Username: ${_usernameController.text}'),
-              Text('Password: ${_passwordController.text}'),
+      final username = _usernameController.text;
+      final password = _passwordController.text;
+
+      final isValid = await _verifyLogin(username, password);
+
+      if(!isValid){
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Usuario o Contraseña Incorrectos'),
+            content: Text('Por favor, intentelo denuevo'),
+            actions: [
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('OK'),
+              ),
             ],
           ),
-          actions: [
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.deepPurple,
-                  ),
-                  onPressed: () {
-                    _saveData();
-                    Navigator.pop(context);
-                    _navigateToNextScreen();
-                    _clearForm();
-                  },
-                  child: Text('Yes'),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.deepPurple,
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _navigateToNextScreen();
-                    _clearForm();
-                  },
-                  child: Text('No'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    } else {
+        );
+      }
+    }else {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -132,6 +117,7 @@ class _LoginViewState extends State<LoginView> {
       );
     }
   }
+
   void _saveData() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
@@ -142,12 +128,11 @@ class _LoginViewState extends State<LoginView> {
     await _secureStorage.write(key: 'password', value: password);
   }
 
-  void _navigateToNextScreen() {
-    String username = _usernameController.text;
+  void _navigateToNextScreen({String? username}) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AdminPage(username: username),
+        builder: (context) => AdminPage(username: username ?? _usernameController.text),
       ),
     );
   }
@@ -160,7 +145,6 @@ class _LoginViewState extends State<LoginView> {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
