@@ -15,4 +15,13 @@ class Consignee{
     required this.address,
   });
 
+  Map<String,dynamic> toMap(){
+    return {
+      'id':(id==0)? null: id,
+      'dni':dni,
+      'address':address,
+      'name':name,
+    };
+  }
+
 }

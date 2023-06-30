@@ -15,4 +15,15 @@ class FeedbackModel {
         required this.typeOfComplaintId
 
       });
+
+
+  Map<String,dynamic> toMap(){
+    return {
+      'id': (id==0)? null:id,
+      'description': description,
+      'date': date,
+      'typeOfComplaintId': typeOfComplaintId,
+      'shipmentId': shipmentId,
+    };
+  }
 }

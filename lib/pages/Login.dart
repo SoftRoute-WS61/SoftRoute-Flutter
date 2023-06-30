@@ -1,3 +1,4 @@
+import 'package:example_souf_route/pages/Register.dart';
 import 'package:flutter/material.dart';
 import 'administratorPage.dart';
 
@@ -49,6 +50,15 @@ class _LoginViewState extends State<LoginView> {
         ),
       );
     }
+  }
+
+  void _navigateToRegisterScreen(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Register(),
+      ),
+    );
   }
 
   @override
@@ -120,7 +130,7 @@ class _LoginViewState extends State<LoginView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () => _navigateToRegisterScreen(),
                               child: Text('Sign Up'),
                             ),
                             ElevatedButton(
