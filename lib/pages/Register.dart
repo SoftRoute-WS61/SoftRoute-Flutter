@@ -72,8 +72,10 @@ class _RegisterState extends State<Register> {
       if (response.statusCode == 200) {
         print('Correcto');
         _saveData(); // guardar datos internamente
+        _isFormValid=true;
         _navigateToAdminScreen(); // Pop Up
         Navigator.pop(context);
+        _clearForm();
       } else {
         print('Request failed with status: ${response.statusCode}');
         showDialog(
@@ -100,14 +102,17 @@ class _RegisterState extends State<Register> {
 
   void _loadSavedData() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? savedUsername = preferences.getString('username');
+    String? savedemail = preferences.getString('email');
     String? savedPassword = await _secureStorage.read(key: 'password');
 
     setState(() {
-      _emailController.text = savedUsername ?? '';
+      _emailController.text = savedemail ?? '';
       _passwordController.text = savedPassword ?? '';
-      _isFormValid = savedUsername != null && savedPassword != null;
+      _isFormValid = savedemail != null && savedPassword != null;
     });
+    if(_isFormValid){
+      _clearForm();
+    }
   }
   void _saveData() async {
     String email = _emailController.text;
@@ -188,7 +193,7 @@ class _RegisterState extends State<Register> {
         context: context,
         builder: (context) => AlertDialog(
           title: Text('Incomplete Form'),
-          content: Text('Please enter your username and password.'),
+          content: Text('Please enter your email and password.'),
           actions: [
             ElevatedButton(
               onPressed: () => Navigator.pop(context),

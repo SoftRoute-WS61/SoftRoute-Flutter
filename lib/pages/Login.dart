@@ -13,7 +13,7 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   bool _isPasswordVisible = false;
-  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   bool _isFormValid = false;
   final _secureStorage = FlutterSecureStorage();
@@ -21,22 +21,9 @@ class _LoginViewState extends State<LoginView> {
   @override
   void initState() {
     super.initState();
-    _loadSavedData();
-  }
-
-  void _loadSavedData() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? savedUsername = preferences.getString('username');
-    String? savedPassword = await _secureStorage.read(key: 'password');
-
-    setState(() {
-      _usernameController.text = savedUsername ?? '';
-      _passwordController.text = savedPassword ?? '';
-      _isFormValid = savedUsername != null && savedPassword != null;
-    });
   }
   void _clearForm() {
-    _usernameController.clear();
+    _emailController.clear();
     _passwordController.clear();
     setState(() {
       _isFormValid = false;
@@ -45,39 +32,39 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   void _checkFormValidity() {
     setState(() {
-      _isFormValid = _usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+      _isFormValid = _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
     });
   }
 
 
   void _saveData() async {
-    String username = _usernameController.text;
+    String email = _emailController.text;
     String password = _passwordController.text;
 
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setString('username', username);
+    await preferences.setString('email', email);
 
     await _secureStorage.write(key: 'password', value: password);
   }
 
   void _navigateToNextScreen() {
-    String username = _usernameController.text;
+    String email = _emailController.text;
     String password = _passwordController.text;
 
-    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text('Error'),
-            content: Text('Please enter your username and password.'),
+            content: Text('Please enter your email and password.'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -93,7 +80,7 @@ class _LoginViewState extends State<LoginView> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => AdminPage(username: username),
+          builder: (context) => AdminPage(email: email),
         ),
       );
       _clearForm();
@@ -110,7 +97,11 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  void _showAccountBottomSheet(){
+  Future<void> _showAccountBottomSheet() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? savedemail = preferences.getString('email');
+    String? savedPassword = await _secureStorage.read(key: 'password');
+
     showModalBottomSheet(
       context: context,
       backgroundColor:Colors.white,
@@ -161,13 +152,13 @@ class _LoginViewState extends State<LoginView> {
              ),
              SizedBox(height: 20),
              Text(
-               'Email/Username: ${_usernameController.text}',
+               'Email: ${savedemail ?? ''}',
                style: TextStyle(
                  fontSize: 16,
                ),
              ),
              Text(
-               'Password: ${_passwordController.text}',
+               'Password: ${_isFormValid ? "********" : ""}',
                style: TextStyle(
                  fontSize: 16,
                ),
@@ -176,8 +167,8 @@ class _LoginViewState extends State<LoginView> {
              SizedBox(height: 10),
 
              ElevatedButton(onPressed: (){
-               _usernameController.text = _usernameController.text;
-               _passwordController.text = _passwordController.text;
+               _emailController.text = savedemail ?? '';
+               _passwordController.text = savedPassword ?? '';
                Navigator.pop(context);
              },
                style: ElevatedButton.styleFrom(
@@ -240,9 +231,9 @@ class _LoginViewState extends State<LoginView> {
                         SizedBox(height: 20),
                         TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'Username',
+                            labelText: 'Email',
                           ),
-                          controller: _usernameController,
+                          controller: _emailController,
                           //
                           onTap: () {
                             _showAccountBottomSheet();

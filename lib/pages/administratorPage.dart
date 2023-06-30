@@ -14,9 +14,9 @@ import '../views/Administrator/ListShipmentView.dart';
 
 class AdminPage extends StatefulWidget {
 
-  final String username;
+  final String email;
 
-  AdminPage({required this.username});
+  AdminPage({required this.email});
 
   @override
   State<AdminPage> createState() => _AdminPageState();
@@ -55,7 +55,7 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          appBar: CustomAppBar(username: widget.username),
+          appBar: CustomAppBar(username: widget.email),
           drawer: NavigationDrawer(onTabTapped: onTabTapped),
           bottomNavigationBar: CurvedNavigationBar(
             height: 60,
