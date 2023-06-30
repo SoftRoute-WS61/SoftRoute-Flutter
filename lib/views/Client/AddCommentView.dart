@@ -260,7 +260,7 @@ class _AddCommentViewState extends State<AddCommentView> {
                   fontWeight: FontWeight.bold,
                 ),),
                 style: ElevatedButton.styleFrom(
-                  primary: const Color(0xffC8A1FF),
+                  primary: Colors.deepPurple,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0)
                   ),

@@ -2,6 +2,10 @@ import 'package:example_souf_route/widgets/appBarRegister.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+
 
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
@@ -19,8 +23,16 @@ class _RegisterState extends State<Register> {
   final _passwordController = TextEditingController();
   final _codeController = TextEditingController();
   bool _isPasswordVisible = false;
+  //
+  final _secureStorage = FlutterSecureStorage();
+  bool _isFormValid=false;
 
   @override
+  void initState() {
+    super.initState();
+    _loadSavedData();
+  }
+
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
@@ -59,7 +71,11 @@ class _RegisterState extends State<Register> {
 
       if (response.statusCode == 200) {
         print('Correcto');
+        _saveData(); // guardar datos internamente
+        _isFormValid=true;
+        _navigateToAdminScreen(); // Pop Up
         Navigator.pop(context);
+        _clearForm();
       } else {
         print('Request failed with status: ${response.statusCode}');
         showDialog(
@@ -83,6 +99,112 @@ class _RegisterState extends State<Register> {
     }
 
   }
+
+  void _loadSavedData() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? savedemail = preferences.getString('email');
+    String? savedPassword = await _secureStorage.read(key: 'password');
+
+    setState(() {
+      _emailController.text = savedemail ?? '';
+      _passwordController.text = savedPassword ?? '';
+      _isFormValid = savedemail != null && savedPassword != null;
+    });
+    if(_isFormValid){
+      _clearForm();
+    }
+  }
+  void _saveData() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await preferences.setString('email',email);
+
+    await _secureStorage.write(key: 'password', value: password);
+  }
+  void _clearForm() {
+    _emailController.clear();
+    _passwordController.clear();
+    setState(() {
+      _isFormValid = false;
+    });
+  }
+  void _navigateToAdminScreen() {
+    if (_isFormValid) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          icon: Icon(Icons.lock,
+              color: Colors.black,
+              size: 50),
+          title: Text('Save Data',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('Do you want to save the entered data?'),
+              SizedBox(height: 16),
+              Text('Email: ${_emailController.text}'),
+              Text('Password: ${_passwordController.text}'),
+            ],
+          ),
+          actions: [
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.deepPurple,
+                  ),
+                  onPressed: () {
+                    _saveData();
+                    Navigator.pop(context);
+                    //_navigateToNextScreen();
+                    _clearForm();
+                  },
+                  child: Text('Yes'),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.deepPurple,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    //_navigateToNextScreen();
+                    _clearForm();
+                  },
+                  child: Text('No'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Incomplete Form'),
+          content: Text('Please enter your email and password.'),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {

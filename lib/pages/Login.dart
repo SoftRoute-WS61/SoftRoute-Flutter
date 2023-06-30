@@ -20,7 +20,7 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   bool _isPasswordVisible = false;
-  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   bool _isFormValid = false;
   final _secureStorage = FlutterSecureStorage();
@@ -47,22 +47,9 @@ class _LoginViewState extends State<LoginView> {
   @override
   void initState() {
     super.initState();
-    _loadSavedData();
-  }
-
-  void _loadSavedData() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? savedUsername = preferences.getString('username');
-    String? savedPassword = await _secureStorage.read(key: 'password');
-
-    setState(() {
-      _usernameController.text = savedUsername ?? '';
-      _passwordController.text = savedPassword ?? '';
-      _isFormValid = savedUsername != null && savedPassword != null;
-    });
   }
   void _clearForm() {
-    _usernameController.clear();
+    _emailController.clear();
     _passwordController.clear();
     setState(() {
       _isFormValid = false;
@@ -71,74 +58,61 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   void _checkFormValidity() {
     setState(() {
-      _isFormValid = _usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+      _isFormValid = _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
     });
   }
 
-  void _navigateToAdminScreen() async {
-    if (_isFormValid) {
-      final username = _usernameController.text;
-      final password = _passwordController.text;
-
-      final isValid = await _verifyLogin(username, password);
-
-      if(!isValid){
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Usuario o Contraseña Incorrectos'),
-            content: Text('Por favor, intentelo denuevo'),
-            actions: [
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
-      }
-    }else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Incomplete Form'),
-          content: Text('Please enter your username and password.'),
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
 
   void _saveData() async {
-    String username = _usernameController.text;
+    String email = _emailController.text;
     String password = _passwordController.text;
 
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setString('username', username);
+    await preferences.setString('email', email);
 
     await _secureStorage.write(key: 'password', value: password);
   }
 
-  void _navigateToNextScreen({String? username}) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AdminPage(username: username ?? _usernameController.text),
-      ),
-    );
+  void _navigateToNextScreen() {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('Please enter your email and password.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AdminPage(email: email),
+        ),
+      );
+      _clearForm();
+    }
   }
+
 
   void _navigateToRegisterScreen(){
     Navigator.push(
@@ -148,6 +122,100 @@ class _LoginViewState extends State<LoginView> {
       ),
     );
   }
+
+  Future<void> _showAccountBottomSheet() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String? savedemail = preferences.getString('email');
+    String? savedPassword = await _secureStorage.read(key: 'password');
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor:Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius:BorderRadius.vertical(
+          top: Radius.circular(25),
+        )
+      ),
+      builder:(context){
+        return Container(
+         padding: EdgeInsets.all(25),
+         child: Column(
+           crossAxisAlignment: CrossAxisAlignment.center,
+           mainAxisSize: MainAxisSize.min,
+           children: [
+               Row(
+                 mainAxisAlignment: MainAxisAlignment.end,
+                 children: [
+                   InkWell(
+                     onTap: () {
+                       Navigator.pop(context);
+                     },
+                     child: Container(
+                       padding: EdgeInsets.all(8),
+                       decoration: BoxDecoration(
+                         shape: BoxShape.circle,
+                         color: Colors.transparent,
+                       ),
+                       child: Icon(
+                         Icons.cancel,
+                         color: Colors.grey,
+                         size: 30,
+                       ),
+                     ),
+                   ),
+                 ],
+               ),
+             Icon(Icons.key_rounded,
+             color: Colors.black,
+             size: 60,
+             ),
+             SizedBox(height: 10),
+             Text('Do you want to log in to SoftRoute with your saved account?',
+             style: TextStyle(
+               fontSize: 18,
+               fontWeight: FontWeight.bold,
+             ),
+             ),
+             SizedBox(height: 20),
+             Text(
+               'Email: ${savedemail ?? ''}',
+               style: TextStyle(
+                 fontSize: 16,
+               ),
+             ),
+             Text(
+               'Password: ${_isFormValid ? "********" : ""}',
+               style: TextStyle(
+                 fontSize: 16,
+               ),
+             ),
+             SizedBox(height: 20),
+             SizedBox(height: 10),
+
+             ElevatedButton(onPressed: (){
+               _emailController.text = savedemail ?? '';
+               _passwordController.text = savedPassword ?? '';
+               Navigator.pop(context);
+             },
+               style: ElevatedButton.styleFrom(
+               backgroundColor: Colors.deepPurple,
+               ),
+                 child:Text('Confirm Use',
+                 style: TextStyle(
+                   fontSize: 16,
+                   fontWeight: FontWeight.bold,
+                 ),
+                 ),
+             )
+
+           ],
+          ),
+        );
+      },
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -189,9 +257,13 @@ class _LoginViewState extends State<LoginView> {
                         SizedBox(height: 20),
                         TextFormField(
                           decoration: InputDecoration(
-                            labelText: 'Username',
+                            labelText: 'Email',
                           ),
-                          controller: _usernameController,
+                          controller: _emailController,
+                          //
+                          onTap: () {
+                            _showAccountBottomSheet();
+                          },
                           onChanged: (value) {
                             _checkFormValidity();
                           },
@@ -213,6 +285,9 @@ class _LoginViewState extends State<LoginView> {
                           ),
                           controller: _passwordController,
                           obscureText: !_isPasswordVisible,
+                          onTap: () {
+                            _showAccountBottomSheet();
+                          },
                           onChanged: (value) {
                             _checkFormValidity();
                           },
@@ -233,11 +308,15 @@ class _LoginViewState extends State<LoginView> {
                                 ),
                               ),
                             ),
+                            //////////////////////////////////////////////
+                            //
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 primary: Colors.deepPurple,
                               ),
-                              onPressed: _navigateToAdminScreen,
+                              onPressed:
+                                _navigateToNextScreen,
+                                //_navigateToAdminScreen,
                               child: Text('Login',
                                 style: TextStyle(
                                   fontSize: 16,
