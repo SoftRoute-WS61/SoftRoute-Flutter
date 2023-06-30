@@ -11,6 +11,7 @@ class Shipment {
   final int typeOfPackageId;
   final int documentId;
 
+
   Shipment(
       {
         required this.id,

@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../views/Administrator/GoogleMapsScreen.dart';
+
+
 
 class DestinationCard extends StatelessWidget {
 
   final String name;
+  final LatLng location;
+
 
   DestinationCard({
-    required this.name
+    required this.name,
+    required this.location,
   });
 
   @override
@@ -31,10 +39,14 @@ class DestinationCard extends StatelessWidget {
                         children: [
                           Container(
                             width: 120,
-                            height: 120, // Ajusta el tamaño según tus necesidades
-                            // Agrega aquí la vista de Google Maps o cualquier otro widget que desees mostrar
-                            // Puedes utilizar el widget `GoogleMap` de la biblioteca `google_maps_flutter` para mostrar el mapa
-                            // Ejemplo: GoogleMap(...),
+                            height: 120,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              image: DecorationImage(
+                                image: AssetImage('images/maps.png'),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                           SizedBox(width: 10),
                           Expanded(
@@ -68,7 +80,19 @@ class DestinationCard extends StatelessWidget {
                             color:Color(0xFFBA8EFC),
                             child: IconButton(
                               onPressed: (){
-                                print("julian t amo");
+                                if (MediaQuery.of(context).size.width >= 600) {
+                                  print("julian t amo");
+                                } else {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => GoogleMapsScreen(
+                                        name: name,
+                                        location: location,
+                                      ),
+                                    ),
+                                  );
+                                }
                               },
                               icon: Icon(Icons.arrow_forward_ios_sharp),
                               color: Colors.white,
